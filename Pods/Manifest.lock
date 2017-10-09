@@ -1,0 +1,12 @@
+PODS:
+  - WebViewJavascriptBridge (5.2.0)
+
+DEPENDENCIES:
+  - WebViewJavascriptBridge (~> 5.0)
+
+SPEC CHECKSUMS:
+  WebViewJavascriptBridge: a00b2d61252aec5207e3263d46fd0fd3cfaf7895
+
+PODFILE CHECKSUM: 32f296c6d8e92f8dcded0d5fe5c1f71d47e4f64d
+
+COCOAPODS: 1.0.1
