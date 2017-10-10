@@ -7,10 +7,11 @@
 //
 
 #import "ViewController.h"
+#import "WebViewJavascriptBridge.h"
 
 
 @interface ViewController ()
-
+@property WebViewJavascriptBridge *bridge;
 @end
 
 @implementation ViewController {
@@ -20,14 +21,34 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    CGRect bounds = self.view.bounds;
-    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, bounds.size.width,
-            bounds.size.height)];
-    webView.delegate = self;
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    self.title = @" xxx";
+    webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+    [webView setOpaque:NO];
+    [webView setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:webView];
-    NSString *url = @"http://www.baidu.com";
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-    [webView loadRequest:request];
+    // load Url
+    NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
+    NSString *appHtml = [NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:nil];
+    NSURL *baseURL = [NSURL fileURLWithPath:htmlPath];
+    [webView loadHTMLString:appHtml baseURL:baseURL];
+
+    // init WebViewJavascriptBridge
+    [WebViewJavascriptBridge enableLogging];
+    self.bridge = [WebViewJavascriptBridge bridgeForWebView:webView];
+    [self.bridge setWebViewDelegate:self];
+    [self registerJsBridge];
+}
+
+/**
+ * 注册 JsBridge
+ */
+- (void) registerJsBridge {
+    [self.bridge registerHandler:@"MyBridge.native.setMenu" handler:^(id data, WVJBResponseCallback responseCallback){
+        NSString *button = data;
+        NSLog(button);
+        responseCallback(@"xxxxxxx");
+    }];
 }
 
 
