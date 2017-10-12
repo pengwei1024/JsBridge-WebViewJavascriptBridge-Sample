@@ -16,6 +16,11 @@ setupWebViewJavascriptBridge(function(bridge) {
                 bridge.callHandler("MyBridge.native.setMenu", button, function (responseData) {
                     console.log("receiver => " + responseData);
                 });
+            },
+            alertDialog:function (title, desc, clickEvent) {
+                bridge.callHandler("MyBridge.native.alertDialog", {title:title, desc:desc}, function (responseData) {
+                    console.log("receiver => " + responseData);
+                });
             }
         }
     };
