@@ -17,6 +17,7 @@
 @implementation ViewController {
     UIWebView *webView;
     NSString *bridgeCore;
+    WVJBResponseCallback callback;
 }
 
 - (void)viewDidLoad {
@@ -43,11 +44,22 @@
 /**
  * 注册 JsBridge
  */
-- (void) registerJsBridge {
-    [self.bridge registerHandler:@"MyBridge.native.setMenu" handler:^(id data, WVJBResponseCallback responseCallback){
+- (void)registerJsBridge {
+    [self.bridge registerHandler:@"MyBridge.native.setMenu" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSString *button = data;
         NSLog(button);
         responseCallback(@"xxxxxxx");
+    }];
+    [self.bridge registerHandler:@"MyBridge.native.alertDialog" handler:^(id data, WVJBResponseCallback responseCallback) {
+
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            NSLog(@"title = %@, desc=%@", [data objectForKey:@"title"], [data objectForKey:@"desc"]);
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[data objectForKey:@"title"]
+                                                                message:[data objectForKey:@"desc"]
+            delegate:self cancelButtonTitle:@"cancel" otherButtonTitles:@"sure", nil];
+            [alertView show];
+            callback = responseCallback;
+        }
     }];
 }
 
@@ -71,6 +83,13 @@
             [webView stringByEvaluatingJavaScriptFromString:bridgeCore];
             NSLog(@"inject js bridge from file.");
         }
+    }
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"UIAlertView click index => %d", buttonIndex);
+    if (callback) {
+        callback([NSString stringWithFormat: @"%d", buttonIndex]);
     }
 }
 

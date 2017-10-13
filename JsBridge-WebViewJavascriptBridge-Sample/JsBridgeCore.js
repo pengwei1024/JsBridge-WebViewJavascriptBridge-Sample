@@ -17,9 +17,13 @@ setupWebViewJavascriptBridge(function(bridge) {
                     console.log("receiver => " + responseData);
                 });
             },
-            alertDialog:function (title, desc, clickEvent) {
+            alertDialog:function (title, desc, sureClick, cancelClick) {
                 bridge.callHandler("MyBridge.native.alertDialog", {title:title, desc:desc}, function (responseData) {
-                    console.log("receiver => " + responseData);
+                    if (responseData && responseData == "1") {
+                        sureClick();
+                    } else {
+                        cancelClick();
+                    }
                 });
             }
         }
