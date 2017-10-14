@@ -18,15 +18,14 @@
     UIWebView *webView;
     NSString *bridgeCore;
     WVJBResponseCallback callback;
+    WVJBResponseCallback menuClick;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    self.title = @" xxx";
+    self.title = @"JsBridge";
     webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
-    [webView setOpaque:NO];
-    [webView setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:webView];
     // load Url
     NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
@@ -46,9 +45,12 @@
  */
 - (void)registerJsBridge {
     [self.bridge registerHandler:@"MyBridge.native.setMenu" handler:^(id data, WVJBResponseCallback responseCallback) {
-        NSString *button = data;
-        NSLog(button);
-        responseCallback(@"xxxxxxx");
+        if (data) {
+            UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithTitle:data
+                              style:UIBarButtonItemStylePlain target:self action:@selector(menuClick)];
+            self.navigationItem.rightBarButtonItem = buttonItem;
+            menuClick = responseCallback;
+        }
     }];
     [self.bridge registerHandler:@"MyBridge.native.alertDialog" handler:^(id data, WVJBResponseCallback responseCallback) {
 
@@ -56,10 +58,13 @@
             NSLog(@"title = %@, desc=%@", [data objectForKey:@"title"], [data objectForKey:@"desc"]);
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[data objectForKey:@"title"]
                                                                 message:[data objectForKey:@"desc"]
-            delegate:self cancelButtonTitle:@"cancel" otherButtonTitles:@"sure", nil];
+                                                               delegate:self cancelButtonTitle:@"cancel" otherButtonTitles:@"sure", nil];
             [alertView show];
             callback = responseCallback;
         }
+    }];
+    [self.bridge registerHandler:@"MyBridge.service.ajax" handler:^(id data, WVJBResponseCallback responseCallback) {
+
     }];
 }
 
@@ -86,10 +91,16 @@
     }
 }
 
+- (void)menuClick {
+    if (menuClick) {
+        menuClick(@"data");
+    }
+}
+
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSLog(@"UIAlertView click index => %d", buttonIndex);
     if (callback) {
-        callback([NSString stringWithFormat: @"%d", buttonIndex]);
+        callback([NSString stringWithFormat:@"%d", buttonIndex]);
     }
 }
 

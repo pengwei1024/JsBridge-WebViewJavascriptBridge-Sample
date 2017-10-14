@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface ViewController : UINavigationController<UIWebViewDelegate, UIAlertViewDelegate>
+@interface ViewController : UIViewController<UIWebViewDelegate, UIAlertViewDelegate>
 
 
 @end
