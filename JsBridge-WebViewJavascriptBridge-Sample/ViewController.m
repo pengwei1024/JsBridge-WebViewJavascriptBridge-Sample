@@ -9,9 +9,9 @@
 #import "ViewController.h"
 #import "WebViewJavascriptBridge.h"
 
-
 @interface ViewController ()
 @property WebViewJavascriptBridge *bridge;
+@property(nonatomic, strong) CLLocationManager *locationManager; //定位服务
 @end
 
 @implementation ViewController {
@@ -19,6 +19,7 @@
     NSString *bridgeCore;
     WVJBResponseCallback callback;
     WVJBResponseCallback menuClick;
+    WVJBResponseCallback locationCallback;
 }
 
 - (void)viewDidLoad {
@@ -47,7 +48,7 @@
     [self.bridge registerHandler:@"MyBridge.native.setMenu" handler:^(id data, WVJBResponseCallback responseCallback) {
         if (data) {
             UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithTitle:data
-                              style:UIBarButtonItemStylePlain target:self action:@selector(menuClick)];
+                                                                           style:UIBarButtonItemStylePlain target:self action:@selector(menuClick)];
             self.navigationItem.rightBarButtonItem = buttonItem;
             menuClick = responseCallback;
         }
@@ -63,8 +64,9 @@
             callback = responseCallback;
         }
     }];
-    [self.bridge registerHandler:@"MyBridge.service.ajax" handler:^(id data, WVJBResponseCallback responseCallback) {
-
+    [self.bridge registerHandler:@"MyBridge.native.getLocation" handler:^(id data, WVJBResponseCallback responseCallback) {
+        [self startLocation];
+        locationCallback = responseCallback;
     }];
 }
 
@@ -92,6 +94,7 @@
 }
 
 - (void)menuClick {
+    NSLog(@"menuClick click");
     if (menuClick) {
         menuClick(@"data");
     }
@@ -102,6 +105,32 @@
     if (callback) {
         callback([NSString stringWithFormat:@"%d", buttonIndex]);
     }
+}
+
+// 开始定位
+- (void)startLocation {
+    if ([CLLocationManager locationServicesEnabled]) {
+        _locationManager = [[CLLocationManager alloc] init];
+        _locationManager.delegate = self;
+        [_locationManager requestWhenInUseAuthorization];
+        _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        _locationManager.distanceFilter = 5.0;
+        [_locationManager startUpdatingLocation];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    [_locationManager stopUpdatingLocation];
+    CLLocation *currentLocation = [locations lastObject];
+    //当前的经纬度
+    NSLog(@"当前的经纬度 %f,%f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    if (locationCallback) {
+        locationCallback([NSString stringWithFormat:@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude]);
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    NSLog(@"error = %@", error);
 }
 
 

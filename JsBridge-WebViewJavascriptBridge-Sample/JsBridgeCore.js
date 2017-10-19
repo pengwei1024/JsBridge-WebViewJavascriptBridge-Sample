@@ -30,13 +30,27 @@ setupWebViewJavascriptBridge(function (bridge) {
                         cancelClick();
                     }
                 });
+            },
+            getLocation:function (result) {
+                bridge.callHandler("MyBridge.native.getLocation", {}, function (responseData) {
+                    if (responseData && result) {
+                        var ret = responseData.split(',');
+                        if (ret && ret.length === 2) {
+                            result(ret[0], ret[1]);
+                        }
+                    }
+                });
+            },
+            takePhoto:function () {
+                alert('暂未实现');
             }
         },
         service: {
-            ajax: function (args) {
-                bridge.callHandler("MyBridge.service.ajax", args, function (responseData) {
-
-                })
+            ajax: function () {
+                alert('暂未实现');
+            },
+            hiShare:function () {
+                alert('暂未实现');
             }
         }
     };

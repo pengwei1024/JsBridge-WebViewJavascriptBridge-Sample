@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
 
-@interface ViewController : UIViewController<UIWebViewDelegate, UIAlertViewDelegate>
+@interface ViewController : UIViewController<UIWebViewDelegate, UIAlertViewDelegate, CLLocationManagerDelegate>
 
 
 @end
