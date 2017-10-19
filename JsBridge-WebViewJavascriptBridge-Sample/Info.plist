@@ -40,6 +40,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app will use your location to show you cool stuff near you.</string>
+    <string>App需要您的同意,才能在使用期间访问位置.</string>
 </dict>
 </plist>
